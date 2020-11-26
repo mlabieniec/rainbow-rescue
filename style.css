@@ -167,14 +167,14 @@ input {
 }
 
 .destroy {
-    box-shadow: 0px 0px 100px white;
+    /*box-shadow: 0px 0px 100px white;*/
     opacity: 0;
     /*transform: rotate(-45deg);*/
     transition: all 1s;
 }
 
 .animating {
-    box-shadow: 1px 1px 20px silver;
+    /*box-shadow: 1px 1px 20px silver;*/
     transition: all 1s;
     opacity: 0.5;
 }

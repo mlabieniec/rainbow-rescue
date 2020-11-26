@@ -178,6 +178,7 @@ document.body.onload = () => {
     const highScoreElement = document.querySelector(".high-score");
     const gameOverElement = document.getElementById("gameOver");
     const soundtrackElement = document.createElement("audio");
+    const soundEffectElement = document.createElement("audio");
     const gemsDisplay = document.querySelector(".gems");
 
     function init() {
@@ -356,10 +357,8 @@ document.body.onload = () => {
             }, 1200);
         });
         swatchElement.style.backgroundColor = weightedColor;
-        if (starting) {
-            playSound("complete");
-            starting = false;
-        }
+        playSound("complete");
+        starting = false;
         updateDisplay();
     }
 
@@ -445,9 +444,11 @@ document.body.onload = () => {
 
     function playSound(name) {
         try {
-            const snd = document.createElement("audio");
-            snd.src = `sounds/${name}.mp3`;
-            snd.play();
+            soundEffectElement.pause();
+            soundEffectElement.src = `sounds/${name}.mp3`;
+            soundEffectElement.onloadeddata = function() {
+                soundEffectElement.play();
+            }
             return true;
         } catch (error) {
             console.log(error);
