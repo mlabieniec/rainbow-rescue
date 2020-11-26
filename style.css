@@ -18,6 +18,7 @@ input {
     width: 100%;
     height: 100%;
     margin: 0 auto;
+    background: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
     transition: all 1s;
 }
 
@@ -57,28 +58,36 @@ input {
 }
 
 .start {
-    position: relative;
+    position: block;
     text-align: center;
     margin: 2em auto;
     padding: 2em;
-    background-color: #333;
-    width: 300px;
-    height: 30%;
+    background: white;
+    width: 390px;
     border-radius: 6px;
-    box-shadow: 1px 1px 20px #333;
+    box-shadow: 1px 1px 20px #333 inset;
     z-index: 10;
     opacity: 0.9;
-    color: white;
     transition: 1s all;
+    border: 3px dashed brown;
+    transition: 1s all;
+}
+
+.start .brand {
+    width: 100%;
 }
 
 .start h2 {
     text-transform: uppercase;
-    text-shadow: 1px 1px 5px black;
 }
 
 .start h1 {
-    text-shadow: 1px 1px 5px black;
+    font-size: 250%;
+}
+
+.high-score {
+    text-shadow: 1px 1px 2px black;
+    transition: 1s all;
 }
 
 #username {
@@ -95,16 +104,17 @@ input {
 
 .btn-start {
     padding: 12px;
-    font-size: large;
+    font-size: medium;
+    text-shadow: 1px 1px 5px black;
     text-transform: uppercase;
     width: 100%;
+    transition: 0.5s all;
 }
 
 .btn-start:hover {
     cursor: pointer;
-    border: 2px dashed white;
-    background: #111;
-    box-shadow: 1px 1px 5px inset black;
+    background: chocolate;
+    transition: 0.5s all;
 }
 
 .drag-box {

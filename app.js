@@ -52,6 +52,14 @@ class Ball extends Collidable {
         rootElement.appendChild(this.element);
     }
 
+    popInFrom(ball) {
+        this.element.style.top = ball.element.style.top;
+        this.element.style.left = ball.element.style.left;
+        setTimeout(() => {
+            this.setPosition();
+        }, 500);
+    }
+
     setPosition() {
         let top = Math.abs(Math.random() * parseInt(this.root.offsetHeight)) - 30;
         let left = Math.abs(Math.random() * parseInt(this.root.offsetWidth));
@@ -123,20 +131,22 @@ document.body.onload = () => {
 
     let numBoxes = 20;
     let balls = [];
-    let colors = [];
     let weightedColor;
     let selectedColor;
     let numSelected = 0;
     let maxSelection = 2;
+    let matches = 0;
+    let maxMatches = 3;
     let selections = [];
-    let matches = [];
     let timer;
     let time = 15;
     let totalTime = 15;
     let gameTime = 15;
     let score = 0;
-    let isBooting = true;
+    let highscore = score;
     let key = "rr";
+    let startScreenBgTimer;
+    let isBooting = true;
     const swatchElement = document.querySelector(".swatch");
     const rootElement = document.getElementById("root");
     const appElement = document.getElementById("app");
@@ -151,6 +161,9 @@ document.body.onload = () => {
     function init() {
 
         if (!usernameInput.value) return;
+
+        clearInterval(startScreenBgTimer);
+
         totalTime = gameTime;
         time = gameTime;
         startElement.className = "start hidden";
@@ -165,6 +178,7 @@ document.body.onload = () => {
         }
         timeElement.textContent = time;
         scoreElement.textContent = score;
+        highScoreElement.textContent = highscore;
         startTime();
     }
 
@@ -183,37 +197,58 @@ document.body.onload = () => {
         }
     }
 
+    function determineBonus() {
+        if (matches === maxMatches) {
+            score += maxMatches;
+            time = 1;
+            playSound("bonus");
+        }
+    }
+
     function complete() {
         time = totalTime;
         score += totalTime;
-        localStorage.setItem(key, JSON.stringify({
-            'username': usernameInput.value,
-            'score': score
-        }));
         time = totalTime;
+        setHighScore(score);
         clearInterval(timer);
         showStart();
         return root.removeChild(balls[0].element);
     }
 
+    function setHighScore(currentScore) {
+        let data = {
+            username: usernameInput.value,
+            score: currentScore,
+            highscore: highscore
+        };
+        if (highscore < currentScore) {
+            data.highscore = currentScore;
+        }
+        return store(key, data);
+    }
+
+    function store(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
+        return JSON.parse(localStorage.getItem(key));
+    }
+
     function showStart() {
         try {
             let data = JSON.parse(localStorage.getItem(key));
-            console.log(data);
             usernameInput.value = data.username;
-            highScoreElement.textContent = data.score;
+            highScoreElement.textContent = data.highscore || data.score;
         } catch (error) {
             console.log(error);
         }
         appElement.style.backgroundColor = Util.generateColor();
         startElement.className = "start";
+        startScreenBgTimer = setInterval(() => {
+            let color = Util.generateColor();
+            startElement.style.border = `3px dashed ${color}`;
+            highScoreElement.style.color = color;
+        }, 3000);
     }
 
-    /**
-     * Shuggles all the balls on the screen
-     * including changing the colors to new
-     * random values
-     */
     function shuffle() {
         if (weightedColor)
             appElement.style.backgroundColor = weightedColor;
@@ -222,21 +257,18 @@ document.body.onload = () => {
             return complete();
         }
 
-        colors = [];
-        matches = [];
+        matches = 0;
         selections = [];
         numSelected = 0;
         weightedColor = Util.generateColor();
-        colors.push(weightedColor);
         balls.forEach((b, idx) => {
             b.enable();
             b.clearSelected();
             b.setPosition();
             let color = Util.generateColor();
-            if (idx === 0 || idx === (balls.length - 1) || idx === (balls.length - balls.length / 2)) {
+            if (idx <= 3) {
                 color = weightedColor;
             }
-            colors.push(color);
             b.color = color;
             b.setColor(color);
             b.element.className = "drag-box animating";
@@ -267,16 +299,15 @@ document.body.onload = () => {
             try {
                 window.navigator.vibrate(200);
             } catch (error) {
-                console.log(error); 
+                console.log(error);
             }
             selectedItems[0].element.style.top = selectedItems[1].element.style.top;
             selectedItems[0].element.style.left = selectedItems[1].element.style.left;
             snd = "win";
             score++;
-            localStorage.setItem(key, JSON.stringify({
-                'username': usernameInput.value,
-                'score': score
-            }));
+            matches++;
+            setHighScore(score);
+            determineBonus();
             setTimeout(() => {
                 selectedItems[0].element.className = "drag-box destroy";
                 setTimeout(() => {
@@ -284,6 +315,7 @@ document.body.onload = () => {
                         if (ball.id === selectedItems[0].id) {
                             rootElement.removeChild(selectedItems[0].element);
                             balls.splice(index, 1);
+                            // complete the game
                             if (balls.length <= 1) {
                                 return complete();
                             }
@@ -293,20 +325,18 @@ document.body.onload = () => {
             }, 1000);
         } else {
             snd = "lose1";
+            let ball = new Ball(rootElement);
+            ball.onSelect = onBallSelect;
+            ball.popInFrom(selectedItems[0]);
+            balls.push(ball);
             totalTime--;
         }
         playSound(snd);
         scoreElement.textContent = score;
     }
 
-    /**
-     * Clears the selected balls when clicking
-     * either the clear selection button or
-     * the root element background
-     * @param {MouseEvent} event 
-     */
     function clear(event) {
-        if (event && event.target === rootElement || event && event.target === btnClear) {
+        if (event && event.target === rootElement) {
             balls.forEach((b) => {
                 if (!b.iDisabled)
                     b.clearSelected();
@@ -329,10 +359,7 @@ document.body.onload = () => {
     swatchElement.addEventListener("click", shuffle);
     startButton.addEventListener("click", (event) => {
         event.preventDefault();
-        localStorage.setItem(key, JSON.stringify({
-            'username': usernameInput.value,
-            'score': score
-        }));
+        if (!usernameInput.value) return;
         init();
     });
     showStart();
