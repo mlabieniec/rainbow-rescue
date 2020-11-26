@@ -186,7 +186,9 @@ document.body.onload = () => {
     const gameOverElement = document.getElementById("gameOver");
     const soundtrackElement = document.createElement("audio");
     const soundEffectElement = document.createElement("audio");
+    soundEffectElement.autoplay = true;
     const gemsDisplay = document.querySelector(".gems");
+    const helpButton = document.querySelector(".btn-help");
 
     function init() {
 
@@ -451,9 +453,7 @@ document.body.onload = () => {
 
     function playSound(name) {
         try {
-            soundEffectElement.pause();
             soundEffectElement.src = `sounds/${name}.mp3`;
-            soundEffectElement.autoplay = true;
             return true;
         } catch (error) {
             console.log(error);
@@ -489,5 +489,11 @@ document.body.onload = () => {
         init();
     });
     gameOverElement.addEventListener("click", showStart);
+    helpButton.addEventListener("click", () => {
+        if (document.getElementById("helpText").className == "hidden")
+            document.getElementById("helpText").className = "";
+        else
+            document.getElementById("helpText").className = "hidden";
+    });
     preload().then(showStart);
 }

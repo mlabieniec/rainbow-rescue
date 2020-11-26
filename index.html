@@ -25,6 +25,12 @@
                 </form>
                 <h2>High Score</h2>
                 <h1 class="high-score"></h1>
+                <div id="instructions">
+                    <button class="btn btn-help">Game Rules</button>
+                    <p id="helpText" class="hidden">
+                        The goal of the game is to eliminate all the gems by matching up the colors to the swatch that is revealed per round in the bottom left of the screen (where the timer is). Each round is 15 seconds, if you fail to match the correct colors, the total time is decreased by 1, and an additional gem is generated. If you succesfully match 3 gems in a single round, you will gain 1 second (not totaling more than 15 seconds). At the end of the game (removing all gems except 2), the total score is your total eliminations, plus the total time you've held (15 if you haven't made any errors). If the total number of Gems increases to the total allowed (displayed in the bottom right; default is 30), then it's game over.
+                    </p>
+                </div>
             </div>
 
             <div id="gameOver" class="game-over hidden">
