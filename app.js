@@ -131,6 +131,7 @@ document.body.onload = () => {
 
     let numBoxes = 20;
     let maxBoxes = 25;
+    let maxWin = 2;
     let balls = [];
     let weightedColor;
     let selectedColor;
@@ -148,6 +149,21 @@ document.body.onload = () => {
     let key = "rr";
     let startScreenBgTimer;
     let starting = true;
+    let sounds = [
+        "alert",
+        "bonus",
+        "chime",
+        "complete",
+        "finish",
+        "gameover",
+        "lose1",
+        "soundtrack-game",
+        "soundtrack-happy",
+        "success",
+        "transition",
+        "win",
+        "win2"
+    ];
     const swatchElement = document.querySelector(".swatch");
     const rootElement = document.getElementById("root");
     const appElement = document.getElementById("app");
@@ -157,13 +173,23 @@ document.body.onload = () => {
     const startButton = document.querySelector(".btn-start");
     const toolbarElement = document.getElementById("toolbar");
     const usernameInput = document.getElementById("username");
+    const gemsInput = document.getElementById("gems");
+    gemsInput.value = numBoxes;
     const highScoreElement = document.querySelector(".high-score");
     const gameOverElement = document.getElementById("gameOver");
     const soundtrackElement = document.createElement("audio");
+    const gemsDisplay = document.querySelector(".gems");
 
     function init() {
 
         if (!usernameInput.value) return;
+        
+        if (gemsInput.value) {
+            numBoxes = parseInt(gemsInput.value);
+            maxBoxes = numBoxes + (numBoxes / 2);
+        }
+
+        gemsDisplay.textContent = numBoxes + "/" + maxBoxes;
 
         clearInterval(startScreenBgTimer);
 
@@ -246,7 +272,10 @@ document.body.onload = () => {
         setHighScore(score);
         clearInterval(timer);
         showStart();
-        return root.removeChild(balls[0].element);
+        balls.forEach((b) => {
+            root.removeChild(b.element);
+        });
+        balls = [];
     }
 
     function setHighScore(currentScore) {
@@ -267,6 +296,8 @@ document.body.onload = () => {
     }
 
     function showStart() {
+        starting = true;
+        toolbarElement.className = "hidden";
         gameOverElement.className = "game-over hidden";
         try {
             let data = JSON.parse(localStorage.getItem(key));
@@ -285,6 +316,10 @@ document.body.onload = () => {
         }, 3000);
 
         setSoundtrack("soundtrack-happy");
+
+        if (timer) {
+            clearInterval(timer);
+        }
     }
 
     function setSoundtrack(sound) {
@@ -297,7 +332,7 @@ document.body.onload = () => {
         if (weightedColor)
             appElement.style.backgroundColor = weightedColor;
 
-        if (balls.length === 1) {
+        if (balls.length === maxWin) {
             return complete();
         }
 
@@ -321,7 +356,11 @@ document.body.onload = () => {
             }, 1200);
         });
         swatchElement.style.backgroundColor = weightedColor;
-        playSound("complete");
+        if (starting) {
+            playSound("complete");
+            starting = false;
+        }
+        updateDisplay();
     }
 
     function startTime() {
@@ -332,7 +371,10 @@ document.body.onload = () => {
                 time = totalTime;
                 clearInterval(timer);
                 shuffle();
-                startTime();
+                if (!starting)
+                    startTime();
+            } else if(balls.length <= maxWin) {
+                return complete();
             }
         }, 1000);
     }
@@ -359,8 +401,9 @@ document.body.onload = () => {
                         if (ball.id === selectedItems[0].id) {
                             rootElement.removeChild(selectedItems[0].element);
                             balls.splice(index, 1);
+                            updateDisplay();
                             // complete the game
-                            if (balls.length <= 1) {
+                            if (balls.length <= maxWin) {
                                 return complete();
                             }
                         }
@@ -373,6 +416,7 @@ document.body.onload = () => {
             ball.onSelect = onBallSelect;
             ball.popInFrom(selectedItems[0]);
             balls.push(ball);
+            updateDisplay();
             totalTime--;
 
             console.log('gameTime: ', gameTime);
@@ -384,6 +428,10 @@ document.body.onload = () => {
         }
         playSound(snd);
         scoreElement.textContent = score;
+    }
+
+    function updateDisplay() {
+        gemsDisplay.textContent = balls.length + " / " + maxBoxes;
     }
 
     function clear(event) {
@@ -407,6 +455,27 @@ document.body.onload = () => {
         }
     }
 
+    function preload() {
+        return new Promise((resolve, reject) => {
+            let preloaded = 0;
+            sounds.forEach((snd) => {
+                const el = document.createElement("audio");
+                el.src = `sounds/${snd}.mp3`;
+                el.onloadeddata = function(event) {
+                    preloaded++;
+                    console.log('loaded sound: ', snd);
+                    if (preloaded >= sounds.length) {
+                        console.log('all sounds loaded');
+                        return resolve();
+                    }
+                }
+                el.onerror = function(event) {
+                    return reject();
+                }
+            });
+        });
+    }
+
     swatchElement.addEventListener("click", shuffle);
     startButton.addEventListener("click", (event) => {
         event.preventDefault();
@@ -414,5 +483,5 @@ document.body.onload = () => {
         init();
     });
     gameOverElement.addEventListener("click", showStart);
-    showStart();
+    preload().then(showStart);
 }

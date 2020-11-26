@@ -11,6 +11,10 @@ html, body {
 input {
     display: block;
     padding: 10px;
+    border: 1px dashed brown;
+    border-radius: 6px;
+    background-color: #FEFEFE;
+    color: brown;
 }
 
 #app {
@@ -32,12 +36,15 @@ input {
     position: absolute;
     background: #333;
     padding: 20px;
+    height: 85px;
+    width: 100px;
     margin: 0.8em;
     z-index: 20;
     bottom: 5px;
     border: 1px solid #333;
     box-shadow: 1px 1px 10px #333;
     border-radius: 6px;
+    opacity: 0.9;
 }
 
 #toolbar a {
@@ -63,7 +70,7 @@ input {
     margin: 2em auto;
     padding: 2em;
     background: white;
-    width: 390px;
+    width: 300px;
     border-radius: 6px;
     box-shadow: 1px 1px 20px #333 inset;
     z-index: 10;
@@ -94,7 +101,7 @@ input {
     transition: 1s all;
 }
 
-#username {
+#username, #gems {
     font-size: large;
     width: 92%;
     margin-bottom: 10px;
@@ -184,7 +191,7 @@ input {
     font-weight: bold;
 }
 
-.score {
+.score, .gems {
     text-align: center;
     float: left;
     margin-left: 20px;
@@ -193,6 +200,13 @@ input {
     color: white;
     font-size: xx-large;
     font-weight: bold;
+}
+
+.gems {
+    position: absolute;
+    top: 75px;
+    left: 4px;
+    text-align: center;
 }
 
 .swatch {
