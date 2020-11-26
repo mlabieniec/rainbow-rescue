@@ -1,4 +1,4 @@
-const CACHE = "pwabuilder-precache";
+const CACHE = "rr-precache";
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
