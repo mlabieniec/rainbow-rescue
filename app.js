@@ -53,8 +53,8 @@ class Ball extends Collidable {
     }
 
     setPosition() {
-        let top = Math.abs(Math.floor(Math.random() * parseInt(this.root.offsetHeight))) - 30;
-        let left = Math.abs(Math.floor(Math.random() * parseInt(this.root.offsetWidth)));
+        let top = Math.abs(Math.random() * parseInt(this.root.offsetHeight)) - 30;
+        let left = Math.abs(Math.random() * parseInt(this.root.offsetWidth));
         this.element.style.top = top.toString() + "px";
         this.element.style.left = left.toString() + "px";
     }
@@ -245,10 +245,7 @@ document.body.onload = () => {
             }, 1200);
         });
         swatchElement.style.backgroundColor = weightedColor;
-        if (!isBooting) {
-            playSound("complete");
-            isBooting = false;
-        }
+        playSound("complete");
     }
 
     function startTime() {
