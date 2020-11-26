@@ -271,6 +271,11 @@ document.body.onload = () => {
     function calculateScore(selectedItems) {
         const snd = document.createElement('audio');
         if (selectedColor === weightedColor) {
+            try {
+                window.navigator.vibrate(200);
+            } catch (error) {
+                console.log(error); 
+            }
             selectedItems[0].element.style.top = selectedItems[1].element.style.top;
             selectedItems[0].element.style.left = selectedItems[1].element.style.left;
             snd.src = "sounds/win.mp3";
