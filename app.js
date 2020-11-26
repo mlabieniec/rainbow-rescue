@@ -169,9 +169,7 @@ document.body.onload = () => {
     }
 
     function onBallSelect(ball) {
-        const selectSound = document.createElement("audio");
-        selectSound.src = "sounds/chime.mp3";
-        selectSound.play();
+        playSound("chime");
         ball.disable();
         selections[numSelected] = ball;
         if (selections.length === maxSelection) {
@@ -248,9 +246,7 @@ document.body.onload = () => {
         });
         swatchElement.style.backgroundColor = weightedColor;
         if (!isBooting) {
-            const el = document.createElement('audio');
-            el.src = 'sounds/complete.mp3';
-            el.play();
+            playSound("complete");
             isBooting = false;
         }
     }
@@ -269,7 +265,7 @@ document.body.onload = () => {
     }
 
     function calculateScore(selectedItems) {
-        const snd = document.createElement('audio');
+        let snd;
         if (selectedColor === weightedColor) {
             try {
                 window.navigator.vibrate(200);
@@ -278,7 +274,7 @@ document.body.onload = () => {
             }
             selectedItems[0].element.style.top = selectedItems[1].element.style.top;
             selectedItems[0].element.style.left = selectedItems[1].element.style.left;
-            snd.src = "sounds/win.mp3";
+            snd = "win";
             score++;
             localStorage.setItem(key, JSON.stringify({
                 'username': usernameInput.value,
@@ -299,10 +295,10 @@ document.body.onload = () => {
                 }, 500);
             }, 1000);
         } else {
-            snd.src = "sounds/lose1.mp3";
+            snd = "lose1";
             totalTime--;
         }
-        snd.play();
+        playSound(snd);
         scoreElement.textContent = score;
     }
 
@@ -318,6 +314,18 @@ document.body.onload = () => {
                 if (!b.iDisabled)
                     b.clearSelected();
             });
+        }
+    }
+
+    function playSound(name) {
+        try {
+            const snd = document.createElement("audio");
+            snd.src = `sounds/${name}.mp3`;
+            snd.play();
+            return true;
+        } catch (error) {
+            console.log(error);
+            return false;
         }
     }
 
