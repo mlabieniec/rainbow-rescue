@@ -5,13 +5,15 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "browser-sync start --server --files \"index.html,style.css,app.js,images/*\"",
-    "build": "pwa-asset-generator favicon.png ./images --icon-only -m ./manifest.json -i ./index.html"
+    "start": "minify app.js > app.min.js && browser-sync start --server --files \"index.html,style.css,app.js,images/*\"",
+    "build-assets": "pwa-asset-generator favicon.png ./images --icon-only -m ./manifest.json -i ./index.html",
+    "build": "minify app.js > app.min.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "browser-sync": "^2.26.13",
+    "minify": "^6.0.1",
     "pwa-asset-generator": "^3.2.3"
   }
 }
