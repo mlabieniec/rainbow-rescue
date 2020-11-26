@@ -331,9 +331,9 @@ document.body.onload = () => {
     }
 
     function setSoundtrack(sound) {
-        soundtrackElement.pause();
         soundtrackElement.src = `sounds/${sound}.mp3`;
-        soundtrackElement.play();
+        soundtrackElement.loop = true;
+        soundtrackElement.autoplay = true;
     }
 
     function shuffle() {
@@ -453,9 +453,7 @@ document.body.onload = () => {
         try {
             soundEffectElement.pause();
             soundEffectElement.src = `sounds/${name}.mp3`;
-            soundEffectElement.onloadeddata = function() {
-                soundEffectElement.play();
-            }
+            soundEffectElement.autoplay = true;
             return true;
         } catch (error) {
             console.log(error);
