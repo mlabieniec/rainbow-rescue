@@ -130,6 +130,7 @@ class Ball extends Collidable {
 document.body.onload = () => {
 
     let numBoxes = 20;
+    let maxBoxes = 25;
     let balls = [];
     let weightedColor;
     let selectedColor;
@@ -146,7 +147,7 @@ document.body.onload = () => {
     let highscore = score;
     let key = "rr";
     let startScreenBgTimer;
-    let isBooting = true;
+    let starting = true;
     const swatchElement = document.querySelector(".swatch");
     const rootElement = document.getElementById("root");
     const appElement = document.getElementById("app");
@@ -157,12 +158,26 @@ document.body.onload = () => {
     const toolbarElement = document.getElementById("toolbar");
     const usernameInput = document.getElementById("username");
     const highScoreElement = document.querySelector(".high-score");
+    const gameOverElement = document.getElementById("gameOver");
+    const soundtrackElement = document.createElement("audio");
 
     function init() {
 
         if (!usernameInput.value) return;
 
         clearInterval(startScreenBgTimer);
+
+        try {
+            if (!highscore) {
+                store(key, {
+                    username: usernameInput.value,
+                    score: score,
+                    highscore: highscore
+                });
+            }
+        } catch (error) {
+            console.log(error);
+        }
 
         totalTime = gameTime;
         time = gameTime;
@@ -180,6 +195,7 @@ document.body.onload = () => {
         scoreElement.textContent = score;
         highScoreElement.textContent = highscore;
         startTime();
+        setSoundtrack("soundtrack-game");
     }
 
     function onBallSelect(ball) {
@@ -202,10 +218,28 @@ document.body.onload = () => {
             score += maxMatches;
             time = 1;
             playSound("bonus");
+            if (totalTime < gameTime) {
+                totalTime++;
+            }
         }
     }
 
+    function gameOver() {
+        console.log("GAME OVER");
+        setSoundtrack("gameover");
+        gameOverElement.className = "game-over";
+        time = totalTime;
+        clearInterval(timer);
+        balls.forEach((b) => {
+            root.innerHTML = "";
+        });
+        balls = [];
+        score = 0;
+        //complete();
+    }
+
     function complete() {
+        playSound("finish");
         time = totalTime;
         score += totalTime;
         time = totalTime;
@@ -233,11 +267,13 @@ document.body.onload = () => {
     }
 
     function showStart() {
+        gameOverElement.className = "game-over hidden";
         try {
             let data = JSON.parse(localStorage.getItem(key));
             usernameInput.value = data.username;
             highScoreElement.textContent = data.highscore || data.score;
         } catch (error) {
+            highScoreElement.textContent = "0";
             console.log(error);
         }
         appElement.style.backgroundColor = Util.generateColor();
@@ -247,6 +283,14 @@ document.body.onload = () => {
             startElement.style.border = `3px dashed ${color}`;
             highScoreElement.style.color = color;
         }, 3000);
+
+        setSoundtrack("soundtrack-happy");
+    }
+
+    function setSoundtrack(sound) {
+        soundtrackElement.pause();
+        soundtrackElement.src = `sounds/${sound}.mp3`;
+        soundtrackElement.play();
     }
 
     function shuffle() {
@@ -330,6 +374,13 @@ document.body.onload = () => {
             ball.popInFrom(selectedItems[0]);
             balls.push(ball);
             totalTime--;
+
+            console.log('gameTime: ', gameTime);
+            console.log('totalTime: ', totalTime);
+            console.log('gems: ', balls.length);
+            if (totalTime <= 2 || balls.length >= maxBoxes) {
+                gameOver();
+            }
         }
         playSound(snd);
         scoreElement.textContent = score;
@@ -362,5 +413,6 @@ document.body.onload = () => {
         if (!usernameInput.value) return;
         init();
     });
+    gameOverElement.addEventListener("click", showStart);
     showStart();
 }

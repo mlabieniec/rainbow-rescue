@@ -57,7 +57,7 @@ input {
     opacity: 0.95;
 }
 
-.start {
+.start, .game-over {
     position: block;
     text-align: center;
     margin: 2em auto;
@@ -71,6 +71,10 @@ input {
     transition: 1s all;
     border: 3px dashed brown;
     transition: 1s all;
+}
+
+.game-over img {
+    width: 100%;
 }
 
 .start .brand {
@@ -102,7 +106,7 @@ input {
     transition: 1s all;
 }
 
-.btn-start {
+.btn-start, .btn-restart {
     padding: 12px;
     font-size: medium;
     text-shadow: 1px 1px 5px black;
@@ -111,7 +115,7 @@ input {
     transition: 0.5s all;
 }
 
-.btn-start:hover {
+.btn-start:hover, .btn-restart:hover {
     cursor: pointer;
     background: chocolate;
     transition: 0.5s all;
