@@ -90,11 +90,8 @@ class Ball extends Collidable {
         if (this.iDisabled) return;
         this.iDragging = !this.iDragging;
         if (this.iDragging) {
-            //this.iSelected = false;
             this.element.style.cursor = "crosshair";
-            //this.setSelected();
         } else {
-            //this.clearSelected();
             this.element.style.cursor = "pointer";
         }
     }
@@ -125,13 +122,6 @@ class Ball extends Collidable {
         this.iSelected = false;
         this.element.className = "drag-box";
     }
-}
-
-if ('serviceWorker' in navigator) {
-    // Use the window load event to keep the page load performant
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js');
-    });
 }
 
 document.body.onload = () => {
@@ -171,6 +161,7 @@ document.body.onload = () => {
         "win",
         "win2"
     ];
+    let isBonus = false;
     const swatchElement = document.querySelector(".swatch");
     const rootElement = document.getElementById("root");
     const appElement = document.getElementById("app");
@@ -184,11 +175,9 @@ document.body.onload = () => {
     gemsInput.value = numBoxes;
     const highScoreElement = document.querySelector(".high-score");
     const gameOverElement = document.getElementById("gameOver");
-    const soundtrackElement = document.createElement("audio");
-    const soundEffectElement = document.createElement("audio");
-    soundEffectElement.autoplay = true;
     const gemsDisplay = document.querySelector(".gems");
     const helpButton = document.querySelector(".btn-help");
+    const soundtrack = new Audio();
 
     function init() {
 
@@ -257,6 +246,9 @@ document.body.onload = () => {
             if (totalTime < gameTime) {
                 totalTime++;
             }
+            isBonus = true;
+        } else {
+            isBonus = false;
         }
     }
 
@@ -271,7 +263,6 @@ document.body.onload = () => {
         });
         balls = [];
         score = 0;
-        //complete();
     }
 
     function complete() {
@@ -333,9 +324,9 @@ document.body.onload = () => {
     }
 
     function setSoundtrack(sound) {
-        soundtrackElement.src = `sounds/${sound}.mp3`;
-        soundtrackElement.loop = true;
-        soundtrackElement.autoplay = true;
+        soundtrack.src = `sounds/${sound}.mp3`;
+        soundtrack.loop = true;
+        soundtrack.play();
     }
 
     function shuffle() {
@@ -366,7 +357,9 @@ document.body.onload = () => {
             }, 1200);
         });
         swatchElement.style.backgroundColor = weightedColor;
-        playSound("complete");
+        if (!starting && !isBonus) {
+            playSound("complete");
+        }
         starting = false;
         updateDisplay();
     }
@@ -453,11 +446,10 @@ document.body.onload = () => {
 
     function playSound(name) {
         try {
-            soundEffectElement.src = `sounds/${name}.mp3`;
-            return true;
+            const sfx = new Audio(`sounds/${name}.mp3`);
+            sfx.play();
         } catch (error) {
             console.log(error);
-            return false;
         }
     }
 
@@ -496,4 +488,11 @@ document.body.onload = () => {
             document.getElementById("helpText").className = "hidden";
     });
     preload().then(showStart);
+}
+
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js');
+    });
 }
