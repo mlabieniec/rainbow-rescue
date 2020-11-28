@@ -14,9 +14,52 @@ class Collidable {
 }
 
 class Util {
+
+    sounds = {
+        "alert": "",
+        "bonus": "",
+        "chime": "",
+        "complete": "",
+        "finish": "",
+        "gameover": "",
+        "lose1": "",
+        "soundtrack-game": "",
+        "soundtrack-happy": "",
+        "success": "",
+        "transition": "",
+        "win": "",
+        "win2": ""
+    };
+    preloaded = 0;
+
     constructor() { }
 
-    static generateColor() {
+    preload() {
+        return new Promise((resolve, reject) => {
+            let total = Object.keys(this.sounds).length - 1;
+            for ( let key in this.sounds) {
+                let audio = new Audio(`sounds/${key}.mp3`);
+                this.sounds[key] = audio;
+                audio.addEventListener("canplaythrough", (e) => {
+                    if (this.preloaded >= total) {
+                        console.log('all sounds loaded');
+                        return resolve();
+                    } else {
+                        console.log(`preloaded ${this.preloaded}/${total}`);
+                        this.preloaded ++
+                    }
+                });
+            }
+        });
+    }
+
+    playSound(sound) {
+        console.log('play: ', sound);
+        console.log(this.sounds[sound]);
+        this.sounds[sound].play();
+    }
+
+    generateColor() {
         let values = "ABCDEF0123456789";
         let val = "#";
         for (let index = 0; index < 6; index++) {
@@ -25,6 +68,7 @@ class Util {
         }
         return val;
     }
+
 }
 
 class Ball extends Collidable {
@@ -146,22 +190,9 @@ document.body.onload = () => {
     let key = "rr";
     let startScreenBgTimer;
     let starting = true;
-    let sounds = [
-        "alert",
-        "bonus",
-        "chime",
-        "complete",
-        "finish",
-        "gameover",
-        "lose1",
-        "soundtrack-game",
-        "soundtrack-happy",
-        "success",
-        "transition",
-        "win",
-        "win2"
-    ];
     let isBonus = false;
+    let util = new Util();
+    let soundtrack = new Audio();
     const swatchElement = document.querySelector(".swatch");
     const rootElement = document.getElementById("root");
     const appElement = document.getElementById("app");
@@ -177,7 +208,6 @@ document.body.onload = () => {
     const gameOverElement = document.getElementById("gameOver");
     const gemsDisplay = document.querySelector(".gems");
     const helpButton = document.querySelector(".btn-help");
-    const soundtrack = new Audio();
 
     function init() {
 
@@ -308,10 +338,10 @@ document.body.onload = () => {
             highScoreElement.textContent = "0";
             console.log(error);
         }
-        appElement.style.backgroundColor = Util.generateColor();
+        appElement.style.backgroundColor = util.generateColor();
         startElement.className = "start";
         startScreenBgTimer = setInterval(() => {
-            let color = Util.generateColor();
+            let color = util.generateColor();
             startElement.style.border = `3px dashed ${color}`;
             highScoreElement.style.color = color;
         }, 3000);
@@ -340,12 +370,12 @@ document.body.onload = () => {
         matches = 0;
         selections = [];
         numSelected = 0;
-        weightedColor = Util.generateColor();
+        weightedColor = util.generateColor();
         balls.forEach((b, idx) => {
             b.enable();
             b.clearSelected();
             b.setPosition();
-            let color = Util.generateColor();
+            let color = util.generateColor();
             if (idx <= 3) {
                 color = weightedColor;
             }
@@ -446,32 +476,10 @@ document.body.onload = () => {
 
     function playSound(name) {
         try {
-            const sfx = new Audio(`sounds/${name}.mp3`);
-            sfx.play();
+            util.playSound(name);
         } catch (error) {
             console.log(error);
         }
-    }
-
-    function preload() {
-        return new Promise((resolve, reject) => {
-            let preloaded = 0;
-            sounds.forEach((snd) => {
-                const el = document.createElement("audio");
-                el.src = `sounds/${snd}.mp3`;
-                el.onloadeddata = function(event) {
-                    preloaded++;
-                    console.log('loaded sound: ', snd);
-                    if (preloaded >= sounds.length) {
-                        console.log('all sounds loaded');
-                        return resolve();
-                    }
-                }
-                el.onerror = function(event) {
-                    return reject();
-                }
-            });
-        });
     }
 
     swatchElement.addEventListener("click", shuffle);
@@ -487,9 +495,8 @@ document.body.onload = () => {
         else
             document.getElementById("helpText").className = "hidden";
     });
-    preload().then(showStart);
+    util.preload().then(showStart);
 }
-
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
