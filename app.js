@@ -7,14 +7,20 @@
  *  - timer ticks down, then re-shuffles
  */
 
+// @TODO
 class Collidable {
     constructor() {
 
     }
 }
 
+/**
+ * This class mainly preloads sounds and generates random Hex values 
+ * for box colors.
+ */
 class Util {
 
+    // the file names, minus the extension
     sounds = {
         "alert": "",
         "bonus": "",
@@ -34,6 +40,12 @@ class Util {
 
     constructor() { }
 
+    /**
+     * Preloads the sounds in the background, this is clearly
+     * very important for Safari which performs very poorly when
+     * dynamically loading sounds, especially on mobile devices.
+     * @returns void
+     */
     preload() {
         return new Promise((resolve, reject) => {
             let total = Object.keys(this.sounds).length - 1;
@@ -53,12 +65,14 @@ class Util {
         });
     }
 
+    // Plays a particular sound by file name
     playSound(sound) {
         console.log('play: ', sound);
         console.log(this.sounds[sound]);
         this.sounds[sound].play();
     }
 
+    // Generates a random Hex value for a box color
     generateColor() {
         let values = "ABCDEF0123456789";
         let val = "#";
@@ -71,6 +85,9 @@ class Util {
 
 }
 
+/**
+ * Used to be a ball, now it's a box!
+ */
 class Ball extends Collidable {
 
     id;
@@ -96,6 +113,11 @@ class Ball extends Collidable {
         rootElement.appendChild(this.element);
     }
 
+    /**
+     * Spawns a new box in place of a current box
+     * when a user selects the wrong color match
+     * @param {Ball} ball 
+     */
     popInFrom(ball) {
         this.element.style.top = ball.element.style.top;
         this.element.style.left = ball.element.style.left;
