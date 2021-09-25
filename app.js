@@ -126,6 +126,10 @@ class Ball extends Collidable {
         }, 500);
     }
 
+    /**
+     * Sets the current position of a box to the position of
+     * the parent (root) element e.g. when a new box is spawned
+     */
     setPosition() {
         let top = Math.abs(Math.random() * parseInt(this.root.offsetHeight)) - 30;
         let left = Math.abs(Math.random() * parseInt(this.root.offsetWidth));
